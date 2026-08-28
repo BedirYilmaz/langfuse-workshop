@@ -112,7 +112,7 @@ Langfuse ships a **Correctness** LLM-as-a-judge template that compares an actual
    | Variable | Object Field | JsonPath |
    | --- | --- | --- |
    |  |  |  |
-   | `output` | **Output** | Leave blank |
+   | `output` | **Output** | Select the output |
    | `expected_output` | **Expected Output** | `select idealAnswer in expectedOutput` |
 
    <img src="../images/experiments/correctness-variable-mapping.png" alt="Map the Correctness evaluator variables to the experiment output and expected ideal answer." width="400" />
