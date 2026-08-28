@@ -70,17 +70,17 @@ For **User Disagreement**:
    | `{{conversation_history}}` | `Input` |        All messages|
    | `{{last_user_message}}` | `Input` |  Last message|
 
-   <img src="../images/monitoring/user-disagreement-conversation-history-mapping.png" alt="Map the conversation history variable to all input messages." width="400" />
+   ![Map the conversation history variable to all input messages.](../images/monitoring/user-disagreement-conversation-history-mapping-400.png)
 
-   <img src="../images/monitoring/user-disagreement-last-user-message-mapping.png" alt="Map the last user message variable to the last input message." width="400" />
+   ![Map the last user message variable to the last input message.](../images/monitoring/user-disagreement-last-user-message-mapping-400.png)
 
 6. In the right panel, you can test run your evaluator on a sample observation
 
-   <img src="../images/monitoring/user-disagreement-test-evaluator.png" alt="Test the User Disagreement evaluator on the selected sample observation." width="400" />
+   ![Test the User Disagreement evaluator on the selected sample observation.](../images/monitoring/user-disagreement-test-evaluator-400.png)
 
 7. Finally click on **Create evaluator**. In the upcoming screen you can see a rough cost estimation per week and set a sampling rate. As soon as you click on execute, your first evaluator is running.
 
-   <img src="../images/monitoring/user-disagreement-execute-evaluator.png" alt="Execute the saved evaluator on incoming observations using the configured filters." width="400" />
+   ![Execute the saved evaluator on incoming observations using the configured filters.](../images/monitoring/user-disagreement-execute-evaluator-400.png)
 
 
 ## Step 2 — Add a code evaluator for all-caps frustration
