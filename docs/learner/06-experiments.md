@@ -113,10 +113,12 @@ Langfuse ships a **Correctness** LLM-as-a-judge template that compares an actual
    | --- | --- | --- |
    |  |  |  |
    | `output` | **Output** | Leave blank |
-   | `expected_output` | **Expected Output** | `$.idealAnswer` |
+   | `expected_output` | **Expected Output** | `select idealAnswer in expectedOutput` |
+
+   <img src="../images/experiments/correctness-variable-mapping.png" alt="Map the Correctness evaluator variables to the experiment output and expected ideal answer." width="400" />
 
 4. Use the default judge model you configured in session 4, or pick another structured-output-capable judge model, and save.
-5. Create the evaluatir and click on execute.
+5. Create the evaluator and click on execute.
 
 If this is your first experiment, the review table or prompt preview may still say **No results** or **No trace data found** at setup time. That is expected. You have not created any experiment runs yet, so there is nothing for Langfuse to preview against. Save the evaluator now; after Step 4 creates the first run, this evaluator will score the new experiment items asynchronously.
 
