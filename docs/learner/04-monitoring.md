@@ -62,7 +62,7 @@ For **User Disagreement**:
 1. In Langfuse, open **Evaluators → New Evaluator** and pick **Detect User Disagreement** from the **Template Gallery**.
 2. On the right side, select the trace root as a sample observation, this will likely be preselected. We are targeting the root observation of type Agent, the place where the overall trace input and output is logged.
    ![Select the trace root as a sample observation in the evaluator setup panel.](../images/monitoring/select-sample-observation.png)
-Hint: If you hover over the filters in the filter bar, you will see what each of those filter out. You can also 'Ask AI' to configure your filters.
+**Hint**: If you hover over the filters in the filter bar, you will see what each of those filter out. You can also 'Ask AI' to configure your filters.
 3. Map the template's variables from the agent observation's **Input** through the UI selector:
 
    | Template variable | Object field | JsonMapping  |
@@ -74,7 +74,6 @@ Hint: If you hover over the filters in the filter bar, you will see what each of
 
    ![Map the last user message variable to the last input message.](../images/monitoring/user-disagreement-last-user-message-mapping.png)
 
-   The agent input is the chat request from the browser, so the last message is Dad's latest message for that turn.
 6. In the right panel, you can test run your evaluator on a sample observation
 
    ![Test the User Disagreement evaluator on the selected sample observation.](../images/monitoring/user-disagreement-test-evaluator.png)
