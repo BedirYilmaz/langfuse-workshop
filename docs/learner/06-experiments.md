@@ -111,9 +111,9 @@ Langfuse ships a **Correctness** LLM-as-a-judge template that compares an actual
 
    | Variable | Object Field | JsonPath |
    | --- | --- | --- |
-    |
+   |  |  |  |
    | `output` | **Output** | Leave blank |
-   | `expected_output  ` | **Expected Output** | `$.idealAnswer` |
+   | `expected_output` | **Expected Output** | `$.idealAnswer` |
 
 4. Use the default judge model you configured in session 4, or pick another structured-output-capable judge model, and save.
 5. Create the evaluatir and click on execute.

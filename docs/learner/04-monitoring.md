@@ -70,13 +70,13 @@ For **User Disagreement**:
    | `{{conversation_history}}` | `Input` |        All messages|
    | `{{last_user_message}}` | `Input` |  Last message|
 
-   ![Map the conversation history variable to all input messages.](../images/monitoring/user-disagreement-conversation-history-mapping.png)
+   <img src="../images/monitoring/user-disagreement-conversation-history-mapping.png" alt="Map the conversation history variable to all input messages." width="400" />
 
-   ![Map the last user message variable to the last input message.](../images/monitoring/user-disagreement-last-user-message-mapping.png)
+   <img src="../images/monitoring/user-disagreement-last-user-message-mapping.png" alt="Map the last user message variable to the last input message." width="400" />
 
 6. In the right panel, you can test run your evaluator on a sample observation
 
-   ![Test the User Disagreement evaluator on the selected sample observation.](../images/monitoring/user-disagreement-test-evaluator.png)
+   <img src="../images/monitoring/user-disagreement-test-evaluator.png" alt="Test the User Disagreement evaluator on the selected sample observation." width="400" />
 
 7. Finally click on **Create evaluator**. In the upcoming screen you can see a rough cost estimation per week and set a sampling rate. As soon as you click on execute, your first evaluator is running.
 
