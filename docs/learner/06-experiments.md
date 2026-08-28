@@ -115,7 +115,7 @@ Langfuse ships a **Correctness** LLM-as-a-judge template that compares an actual
    | `output` | **Output** | Select the output |
    | `expected_output` | **Expected Output** | `select idealAnswer in expectedOutput` |
 
-   <img src="../images/experiments/correctness-variable-mapping.png" alt="Map the Correctness evaluator variables to the experiment output and expected ideal answer." width="400" />
+   ![Map the Correctness evaluator variables to the experiment output and expected ideal answer.](../images/experiments/correctness-variable-mapping-400.png)
 
 4. Use the default judge model you configured in session 4, or pick another structured-output-capable judge model, and save.
 5. Create the evaluator and click on execute.
