@@ -39,26 +39,52 @@ Monitoring also has a quality-tracking dimension — average score on some metri
 
 You don't need to change any code in this step. The trace shape from `02-tracing` already has everything these monitors need: the agent observation has the full conversation and final answer, and each OpenAI generation has the system prompt plus the same message array.
 
-## Step 1 — Configure the Langfuse evaluator model
+## Step 0 — Configure the Langfuse evaluator model
+The first two monitors in this chapter use LLM-as-a-judge templates. Langfuse runs those judge calls from an LLM Connection inside your Langfuse project, so configure the evaluator model now, right before you use them.
 
-The first two monitors in this chapter use LLM-as-a-judge templates. Langfuse runs those judge calls from an **LLM Connection** inside your Langfuse project, so configure the evaluator model now, right before you use them.
+If your project already has a default evaluator model, keep it and continue to Step 1.
 
-If your project already has a default evaluator model, keep it and continue to Step 2.
-
-1. In Langfuse, open **Project Settings → LLM Connections**.
-2. Click **Add new LLM Connection**.
-3. Choose **OpenAI**, name the connection, and paste your OpenAI API key into the secret field.
+1. In Langfuse, open Project Settings → LLM Connections.
+2. Click Add new LLM Connection.
+3. Choose OpenAI, name the connection, and paste your OpenAI API key into the secret field.
 4. Save the connection.
-5. The default evaluation model is set during evaluator creation: if the project doesn't have one yet, the **Set up evaluator** wizard asks for it at its **Set up LLM connection** step before you can continue. When that appears, choose the OpenAI connection and a structured-output-capable model such as `openai / gpt-4.1`, then save. Once set, it shows as **Default model** at the top of the Evaluators page, where you can also change it later.
+5. The default evaluation model is set during evaluator creation: if the project doesn't have one yet, the Set up evaluator wizard asks for it at its Set up LLM connection step before you can continue. When that appears, choose the OpenAI connection and a structured-output-capable model such as openai / gpt-4.1, then save. Once set, it shows as Default model at the top of the Evaluators page, where you can also change it later.
 
 Keep the API key in the Langfuse secret field only. Do not paste it into workshop transcripts or shared notes.
 
-## Step 2 — Wire the first two judge-based monitors (Langfuse UI)
+## Step 1 — Wire the first two judge-based monitors (Langfuse UI)
 
 Langfuse ships published templates for **User Disagreement** and **Out-of-Scope Request**. Both are LLM-as-a-judge evaluators that read variables from observations. The two templates need slightly different targets:
 
-- **Out-of-Scope Request** needs the system prompt, so target the final OpenAI generation. Only the generation input carries the system message; the agent input is the chat request from the browser, which holds Dad's messages alone.
 - **User Disagreement** needs the conversation history, so target the root `dad-it-support-chat-turn` agent observation.
+- **Out-of-Scope Request** needs the system prompt, so target the final OpenAI generation. Only the generation input carries the system message; the agent input is the chat request from the browser, which holds Dad's messages alone.
+
+For **User Disagreement**:
+
+1. In Langfuse, open **Evaluators → New Evaluator** and pick **Detect User Disagreement** from the **Template Gallery**.
+2. On the right side, select the trace root as a sample observation, this will likely be preselected.
+   ![Select the trace root as a sample observation in the evaluator setup panel.](../images/monitoring/select-sample-observation.png)
+Hint: If you hover over the filters in the filter bar, you will see what each of those filter out. You can also 'Ask AI' to configure your filters.
+3. Map the template's variables from the agent observation's **Input** through the UI selector:
+
+   | Template variable | Object field | JsonMapping  |
+   | --- | --- | --- |
+   | `{{conversation_history}}` | `Input` |        All messages|
+   | `{{last_user_message}}` | `Input` |  Last message|
+
+   ![Map the conversation history variable to all input messages.](../images/monitoring/user-disagreement-conversation-history-mapping.png)
+
+   ![Map the last user message variable to the last input message.](../images/monitoring/user-disagreement-last-user-message-mapping.png)
+
+   The agent input is the chat request from the browser, so the last message is Dad's latest message for that turn.
+6. In the right panel, you can the test run your evaluator on a sample observation
+
+   ![Test the User Disagreement evaluator on the selected sample observation.](../images/monitoring/user-disagreement-test-evaluator.png)
+
+7. Finally click on **Create evaluator** and then on execute. Your first evaluator is running.
+
+   ![Execute the saved evaluator on incoming observations using the configured filters.](../images/monitoring/user-disagreement-execute-evaluator.png)
+
 
 For **Out-of-Scope Request**:
 
@@ -79,25 +105,6 @@ For **Out-of-Scope Request**:
 
 ![Variable mapping](../images/monitoring/out-of-scope.png)
 
-For **User Disagreement**:
-
-1. In Langfuse, open **Evaluators → Set up evaluator** and pick **User Disagreement** from the **Use existing** list.
-2. Target the root agent observation:
-   - Observation type: `agent`
-   - Observation name: `dad-it-support-chat-turn`
-3. Map the template's variables from the agent observation's **Input**:
-
-   | Template variable | Object field | JsonPath |
-   | --- | --- | --- |
-   | `{{conversation_history}}` | `Input` | `$.messages` |
-   | `{{last_user_message}}` | `Input` | `$.messages[-1:].content` |
-
-   The agent input is the chat request from the browser, so the last message is Dad's latest message for that turn.
-4. Use the default judge model you configured in Step 1, or pick another structured-output-capable judge model, and save.
-5. Enable the evaluator.
-
-
-![Variable mapping for the User Disagreement evaluator.](../images/monitoring/user-disagreement-config.png)
 
 > 💡 *Custom evaluators.* The shipped templates are a fast on-ramp, but you don't have to use them. **Evaluators → Set up evaluator → Create from scratch → LLM as a judge evaluator** lets you write your own prompt and define your own variables. Same mapping flow — point each variable at the right JsonPath on the right observation, and you're done.
 
