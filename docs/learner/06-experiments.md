@@ -102,30 +102,25 @@ Langfuse ships a **Correctness** LLM-as-a-judge template that compares an actual
 
 > Fresh project check: Correctness is an LLM-as-a-judge evaluator. If you did not configure the default evaluation model in session 4, do it now: open **Project Settings → LLM Connections** and add your OpenAI key. The model itself is set during evaluator creation — the **Set up evaluator** wizard asks for it at its **Set up LLM connection** step; choose a structured-output-capable model such as `openai / gpt-4.1`. Once set, it shows as **Default model** at the top of the Evaluators page, where you can also change it later. Keep the API key in the Langfuse secret field only; do not paste it into workshop transcripts or shared notes.
 
-1. In Langfuse, open **Evaluators → Set up evaluator** and pick **Correctness** from the **Use existing** list (*Langfuse managed evaluators*).
-2. Target the runs from this dataset:
-   - Run on: **Experiments** (the UI often opens on observations, so switch this first)
-   - Filter where: Dataset is 'dad-it-support-workshop'
+1. In Langfuse, open **Evaluators → New Evaluator** and pick **Check Correctness** from the **Template Gallery**.
+2. Filter for the observations that were created based on experiments
+
+   ![Filter for observations created by experiments in the evaluator setup panel.](../images/experiments/correctness-experiment-observation-filter.png)
+
 3. Map the template variables. In the UI, set the **Source** dropdown first, then add JsonPath only where needed:
 
    | Variable | Object Field | JsonPath |
    | --- | --- | --- |
-   | `query` | **Input** | `$.messages[-1:].content` |
-   | `generation` | **Output** | Leave blank |
-   | `ground_truth` | **Expected Output** | `$.idealAnswer` |
+    |
+   | `output` | **Output** | Leave blank |
+   | `expected_output  ` | **Expected Output** | `$.idealAnswer` |
 
-   A common broken setup is leaving all three variables on **Input** because that dropdown shows up first. If `generation` or `ground_truth` point to **Input**, the evaluator reads the wrong data for every run.
-
-   One more pitfall that might fail *silently* — the evaluator still runs, the judge receives an empty variable, and it returns a plausible-looking score with reasoning like "with no query provided…":
-   - Watch for stray whitespace when copying JsonPaths. A leading space (`" $.idealAnswer"`) is saved as-is and resolves to nothing.
-4. Use the default judge model you configured in session 4 or in the fresh project check above, or pick another structured-output-capable judge model, and save.
-5. Enable the evaluator.
+4. Use the default judge model you configured in session 4, or pick another structured-output-capable judge model, and save.
+5. Create the evaluatir and click on execute.
 
 If this is your first experiment, the review table or prompt preview may still say **No results** or **No trace data found** at setup time. That is expected. You have not created any experiment runs yet, so there is nothing for Langfuse to preview against. Save the evaluator now; after Step 4 creates the first run, this evaluator will score the new experiment items asynchronously.
 
-Why run on **Experiments** here? Because for this workshop we want `correctness` to appear on the experiment run rows and in the run comparison view.
-
-![Correctness Variable Mapping](../images/experiments/correctness-variable-mapping.png)
+Why run on **Experiments** here? Because measures like `correctness` require ground truth. In a typical production setup we will not have ground truth, hence we need to create examples with ground truth to run quality checks of our application.
 
 ## Step 4 — Run the dataset
 
