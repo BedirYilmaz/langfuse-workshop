@@ -80,7 +80,7 @@ For **User Disagreement**:
 
 7. Finally click on **Create evaluator**. In the upcoming screen you can see a rough cost estimation per week and set a sampling rate. As soon as you click on execute, your first evaluator is running.
 
-   ![Execute the saved evaluator on incoming observations using the configured filters.](../images/monitoring/user-disagreement-execute-evaluator.png)
+   <img src="../images/monitoring/user-disagreement-execute-evaluator.png" alt="Execute the saved evaluator on incoming observations using the configured filters." width="400" />
 
 
 ## Step 2 — Add a code evaluator for all-caps frustration
