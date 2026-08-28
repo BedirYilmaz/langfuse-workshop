@@ -75,7 +75,7 @@ Hint: If you hover over the filters in the filter bar, you will see what each of
    ![Map the last user message variable to the last input message.](../images/monitoring/user-disagreement-last-user-message-mapping.png)
 
    The agent input is the chat request from the browser, so the last message is Dad's latest message for that turn.
-6. In the right panel, you can the test run your evaluator on a sample observation
+6. In the right panel, you can test run your evaluator on a sample observation
 
    ![Test the User Disagreement evaluator on the selected sample observation.](../images/monitoring/user-disagreement-test-evaluator.png)
 
