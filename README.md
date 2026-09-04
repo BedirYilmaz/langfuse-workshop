@@ -6,6 +6,8 @@ This is a step-by-step Langfuse workshop built on a small TypeScript sample appl
 
 You can complete the workshop on your own from the learner lessons, or use the instructor notes to teach the same material to a group.
 
+> ⚠️ Use **Langfuse Cloud** so you have the latest features this workshop describes. Self-hosted instances may be on an older version and will not match the lessons.
+
 ## For learners
 
 Start with the learner lessons in [`docs/learner/`](./docs/learner/). Each lesson tells you which checkpoint to check out, what to change in code or configure in Langfuse, and how to verify the result.
