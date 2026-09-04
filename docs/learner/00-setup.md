@@ -9,6 +9,8 @@ description: "Set up the workshop app with OpenAI and Langfuse credentials, then
 
 Have the workshop app running locally with both OpenAI and Langfuse credentials in place. From here you can skim `01-base-app`, then start building in `02-tracing`.
 
+> ⚠️ Use **Langfuse Cloud** so you have the latest features this workshop describes. Self-hosted instances may be on an older version and will not match the lessons.
+
 ## Prerequisites
 
 **Node.js `^20.19.0 || >=22.12.0`** — check with `node -v` and upgrade before installing if you are below it (`nvm install 22`, or the equivalent for `asdf`, `fnm`, or `volta`).
