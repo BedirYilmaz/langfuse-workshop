@@ -58,9 +58,9 @@ That makes the out-of-scope behaviour explicit instead of letting the model impr
 
 Two ways to make the change:
 
-**Option A — Langfuse-side (edit in the UI, recommended):**
+**Option A — Langfuse-side (create a new version in the UI, recommended):**
 
-Prompts → `dad-it-support-agent` → edit body → add the rule above into the **Rules** section → save as a new version → promote the new version to the `production` label. The resolver fetches by label, so the next request picks up the new version automatically. This is the workflow your team will use for ongoing iteration in production.
+Prompts → `dad-it-support-agent` → create a new version or draft → add the rule above into the **Rules** section → save that version → promote the new version to the `production` label. The resolver fetches by label, so the next request picks up the new version automatically. This is the workflow your team will use for ongoing iteration in production.
 
 ![Review Prompt Changes in Langfuse — side-by-side diff between v1 and the draft with the new out-of-scope rule highlighted, ready to save as a new version and promote to production.](../images/evaluate-a-change/07-evaluate-a-change-prompt-diff.png)
 
@@ -82,7 +82,7 @@ Either way you end up with a new prompt version, and the next `runSupportConvers
 npm run dataset:run
 ```
 
-You now have two runs under the same dataset, each linked to a different prompt version. The same `keyword_overlap` script evaluator and `correctness` evaluator from step 06 score the new run automatically.
+You now have two runs under the same dataset, each linked to a different prompt version. The same `keyword_overlap` and `correctness` callback evaluators from step 06 score the new run automatically inside `runExperiment`.
 
 ## Step 3 — Compare
 
@@ -104,7 +104,7 @@ Things to look for:
 
 - Two runs appear under the dataset, linked to different prompt versions.
 - Both scores (`keyword_overlap`, `correctness`) have averages you can compare.
-- If a score is still pending, refresh after the evaluator queue finishes.
+- The console summary from `npm run dataset:run` already lists both scores for the new run.
 
 ## Wrap-up
 
