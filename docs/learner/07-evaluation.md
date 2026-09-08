@@ -82,7 +82,7 @@ Either way you end up with a new prompt version, and the next `runSupportConvers
 npm run dataset:run
 ```
 
-You now have two runs under the same dataset, each linked to a different prompt version. The same `keyword_overlap` script evaluator and `correctness` evaluator from step 06 score the new run automatically.
+You now have two runs under the same dataset, each linked to a different prompt version. The same `keyword_overlap` and `correctness` callback evaluators from step 06 score the new run automatically inside `runExperiment`.
 
 ## Step 3 — Compare
 
@@ -104,7 +104,7 @@ Things to look for:
 
 - Two runs appear under the dataset, linked to different prompt versions.
 - Both scores (`keyword_overlap`, `correctness`) have averages you can compare.
-- If a score is still pending, refresh after the evaluator queue finishes.
+- The console summary from `npm run dataset:run` already lists both scores for the new run.
 
 ## Wrap-up
 
