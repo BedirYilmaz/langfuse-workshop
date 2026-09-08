@@ -1,6 +1,6 @@
 ---
 title: "Workshop: Instructor Notes for Experiments"
-description: "Facilitator notes for running Langfuse experiments, combining an in-script deterministic score with an LLM-as-a-judge evaluator, and inspecting run results."
+description: "Facilitator notes for running Langfuse experiments with callback evaluators inside runExperiment, and optionally mentioning platform evaluators as a bonus."
 ---
 
 # 06 Experiments
@@ -10,25 +10,25 @@ Learner guide: [06 Experiments](../learner/06-experiments.md)
 ## Instructor notes
 
 - The key idea is reuse: the experiment runner calls the same `runSupportConversation(...)` as the web app.
-- Contrast deterministic scoring in the script (`keyword_overlap`) with LLM-as-a-judge scoring (`correctness`).
-- Confirm the default evaluator model before the Correctness setup. If learners did not configure it in session 4, send them to **Project Settings → LLM Connections** first.
-- Emphasize the mixed setup: the script owns the cheap deterministic check, while Langfuse owns the semantic judge.
+- Contrast deterministic scoring (`keyword_overlap`) with LLM-as-a-judge scoring (`correctness`) — both as **callbacks** on `runExperiment`.
+- Call out why this chapter avoids Langfuse Platform evaluators as the primary path: configuring one needs existing experiment data to preview mappings, which blocks a clean first run.
+- The correctness judge uses the learner's `OPENAI_API_KEY` / `OPENAI_MODEL`. Session 4's Langfuse default evaluator model is **not** required here.
+- Emphasize that both scores should appear in the console summary when `npm run dataset:run` finishes.
 - Keep concurrency at one for workshops so traces and the final run summary are easy to follow.
+- Before running the dataset, confirm both the OpenAI and Langfuse credentials point to active projects. The runner can finish with exit code 0 after skipping every item, so always check that the console prints experiment results rather than only SDK errors.
+- Optional bonus only if you have time: show that Platform evaluators can still target experiment observations after the first run exists.
 
 ## Demo rhythm
 
 1. Skim the numbered sections in `scripts/run-dataset.ts`.
-2. Point out the `keyword_overlap` evaluator inside the script.
-3. Configure the Correctness evaluator as a dataset-run evaluator.
-4. Run `npm run dataset:run`.
-5. Open the run table, per-item traces, and chart view.
+2. Point out both callback evaluators in the `evaluators` array.
+3. Run `npm run dataset:run`.
+4. Open the run table, per-item traces, and chart view — both scores should already be present.
+5. (Optional) Mention Platform evaluators / **Check Correctness** as a later add-on once experiment data exists.
 
 ## Watch for
 
-- Correctness evaluator target. Keep it on **Dataset runs** if you want the score to show up on the run rows and in run comparison.
-- Have learners switch from the default **Observations** view to **Dataset runs** before they configure anything else.
-- Correctness evaluator mapping uses three different source dropdowns: `query` is **Input** with `$.messages[-1].content`, `generation` is **Output** with no JsonPath, and `ground_truth` is **Expected Output** with `$.idealAnswer`.
-- A common misconfiguration is leaving all three variables on **Input**, which silently makes the evaluator read the wrong data for every field.
-- Learners assuming the deterministic check must live in Langfuse now. It does not; mention the code-evaluator docs only as an alternative.
-- "No default model set" means Langfuse needs an LLM connection/default evaluator model; it is not fixed by editing `.env`.
-- Slow asynchronous evaluator results; the console only shows the final summary, so refresh Langfuse after the run finishes if `correctness` is still pending.
+- Learners trying to set up **Check Correctness** in the UI before the first run. Redirect them to the script callbacks; platform setup is bonus-only.
+- Do not use `expectedKeywords` as the correctness reference. That field belongs to `keyword_overlap`; correctness uses `idealAnswer`.
+- `401 The project you are requesting has been archived` followed by `No experiment results to display` means the OpenAI key belongs to an archived project. Replace `OPENAI_API_KEY` locally with a key from an active project, then rerun.
+- Missing `correctness` in the console usually means the judge call failed (bad key, model, or JSON parse). Check the terminal error rather than refreshing Langfuse for a pending platform score.

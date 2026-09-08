@@ -59,8 +59,8 @@ For us, the conceptual shape of one item is:
 
 The two fields inside `expectedOutput` answer two different evaluator questions:
 
-- **`idealAnswer`** is the human-readable reference reply. It's what the LLM-as-a-judge correctness evaluator (chapter 06) reads from `$.idealAnswer` to decide whether the meaning matches.
-- **`expectedKeywords`** is a small list of strings the answer *must* contain to be considered "covered the steps." In chapter 06 the experiment script uses it for a deterministic `keyword_overlap` score — fast, cheap, and no model call required.
+- **`idealAnswer`** is the human-readable reference reply. It's what the LLM-as-a-judge `correctness` callback in chapter 06 reads to decide whether the meaning matches.
+- **`expectedKeywords`** is a small list of strings the answer *must* contain to be considered "covered the steps." In chapter 06 the experiment script uses it for a deterministic `keyword_overlap` callback — fast, cheap, and no model call required.
 
 `metadata` lets us slice runs by category or difficulty later when comparing experiment runs side by side.
 
