@@ -1,6 +1,6 @@
 ---
 title: "Workshop: Run Langfuse Experiments"
-description: "Run the support agent across the Langfuse dataset, attach a deterministic score in the experiment script, and inspect scored experiment runs."
+description: "Run the support agent across the Langfuse dataset, score every item with callback evaluators inside runExperiment, and inspect scored experiment runs."
 ---
 
 # 06 Experiments
@@ -26,14 +26,14 @@ Different evaluators answer different questions. For a broader tour of evaluator
 - **`keyword_overlap`** (deterministic) — *did the answer cover the steps we expected?* Fast, cheap, and computed directly in the experiment script.
 - **`correctness`** (LLM-as-a-judge) — *is the answer actually correct?* More expressive, especially when the wording can vary but the underlying answer has to match the ideal.
 
-This chapter uses a mixed setup on purpose: the cheap deterministic check lives in code right next to the experiment runner, while the semantic judge lives in Langfuse.
+Both scores are **callback evaluators** inside `runExperiment`. They run in your process right after each item finishes, so the console summary and the Langfuse run already include both scores when the script exits. We intentionally avoid Langfuse Platform evaluators in this chapter: configuring one needs existing experiment data to preview and map variables, which creates a chicken-and-egg problem before your first run.
 
 ## Goal
 
 By the end of this chapter:
 
 1. You can run the full dataset against the agent on demand.
-2. Every item gets a **`keyword_overlap`** score (deterministic) and a **`correctness`** score (LLM-as-a-judge).
+2. Every item gets a **`keyword_overlap`** score (deterministic) and a **`correctness`** score (LLM-as-a-judge), both from `runExperiment` callbacks.
 3. The two scores plus the per-item traces are visible in Langfuse and ready to compare against future runs.
 
 ## Step 1 — Understand the run script
@@ -43,9 +43,9 @@ Open `scripts/run-dataset.ts`. The file is annotated with numbered comments (`//
 - Loads the hosted dataset from Langfuse by `DATASET_NAME`.
 - For each item, calls the same `runSupportConversation(...)` the web app uses.
 - Uses `dataset.runExperiment(...)` to roll all per-item traces into a single run row.
-- Attaches a `keyword_overlap` score per item by comparing `expectedKeywords` against the agent's answer.
+- Attaches `keyword_overlap` and `correctness` as callback evaluators on that same call.
 
-The traces produced are the same shape as production traces — same `dad-it-support-chat-turn` root, same OpenAI generation, same tool spans. We do not need extra UI setup for the deterministic score because it already lives in the script.
+The traces produced are the same shape as production traces — same `dad-it-support-chat-turn` root, same OpenAI generation, same tool spans. No extra Langfuse UI setup is required for either score.
 
 ### `dataset.runExperiment(...)` — the moving parts
 
@@ -69,6 +69,11 @@ await dataset.runExperiment({
       name: "keyword_overlap",
       value: keywordOverlap(output as string, (expectedOutput as any).expectedKeywords),
       comment: "..."
+    }),
+    async ({ output, expectedOutput }) => ({
+      name: "correctness",
+      value: /* 0 or 1 from the LLM judge */,
+      comment: "..."
     })
   ]
 });
@@ -77,7 +82,7 @@ await dataset.runExperiment({
 Three things to understand:
 
 - **`task`** is *your application logic* — we call straight into `runSupportConversation(...)`, which means every trace this script produces looks identical to a production trace.
-- **`evaluators`** is a list. Each evaluator runs after `task` returns and attaches a score to the item trace. Here we use one deterministic evaluator, but you can add more over time.
+- **`evaluators`** is a list of callbacks. Each evaluator runs after `task` returns and attaches a score to the item trace. Here we use one deterministic check and one LLM-as-a-judge check.
 - **`runName`** groups every per-item trace into one row in the Langfuse Runs view. Pick a name that changes per run (we include the timestamp) so two runs don't collide.
 
 ## Step 2 — Review the deterministic `keyword_overlap` evaluator
@@ -90,39 +95,19 @@ Why keep it in the script?
 - It uses the same version control and review flow as the app.
 - It is deterministic, so there is no reason to spend an LLM call on it.
 
-This is also a good default pattern for teams that want experiment logic to stay in the repo.
-
 Keep in mind that `keyword_overlap` checks literal wording, not behaviour. The out-of-scope items expect words like "outside" and "scope", so a perfectly good refusal phrased differently can score 0 on them. Treat a low `keyword_overlap` on those items as a prompt to read the answer and compare with `correctness`, not automatically as a failure — seeing the two metrics disagree is part of the point of running both.
 
-> Alternative: this same deterministic check could also be moved into a Langfuse code evaluator if you want to manage it in the platform instead of in the script. See the [Code evaluators docs](https://langfuse.com/docs/evaluation/evaluation-methods/code-evaluators) and the [Experiments via SDK docs](https://langfuse.com/docs/evaluation/experiments/experiments-via-sdk).
+## Step 3 — Review the `correctness` LLM-as-a-judge callback
 
-## Step 3 — Set up the `correctness` evaluator in Langfuse
+The second callback in `evaluators` calls OpenAI with the agent answer and the item's `idealAnswer`, then returns a `correctness` score of `0` or `1` plus a short reasoning comment.
 
-Langfuse ships a **Correctness** LLM-as-a-judge template that compares an actual answer to an ideal answer and returns a score. We wire it up against the dataset runs so every item gets both the local deterministic score and a model-judged correctness score that shows up in the run comparison view.
+Why run the judge as a callback instead of a Langfuse Platform evaluator?
 
-> Fresh project check: Correctness is an LLM-as-a-judge evaluator. If you did not configure the default evaluation model in session 4, do it now: open **Project Settings → LLM Connections** and add your OpenAI key. The model itself is set during evaluator creation — the **Set up evaluator** wizard asks for it at its **Set up LLM connection** step; choose a structured-output-capable model such as `openai / gpt-4.1`. Once set, it shows as **Default model** at the top of the Evaluators page, where you can also change it later. Keep the API key in the Langfuse secret field only; do not paste it into workshop transcripts or shared notes.
+- You can score the **first** experiment run without waiting for preview data in the Evaluators UI.
+- The judge prompt and model live next to the experiment runner in git.
+- Both scores appear in the script's printed summary as soon as the run finishes.
 
-1. In Langfuse, open **Evaluators → New Evaluator** and pick **Check Correctness** from the **Template Gallery**.
-2. Filter for the observations that were created based on experiments
-
-   ![Filter for observations created by experiments in the evaluator setup panel.](../images/experiments/correctness-experiment-observation-filter.png)
-
-3. Map the template variables. In the UI, set the **Source** dropdown first, then add JsonPath only where needed:
-
-   | Variable | Object Field | JsonPath |
-   | --- | --- | --- |
-   |  |  |  |
-   | `output` | **Output** | Select the output |
-   | `expected_output` | **Expected Output** | `select idealAnswer in expectedOutput` |
-
-   ![Map the Correctness evaluator variables to the experiment output and expected ideal answer.](../images/experiments/correctness-variable-mapping.png)
-
-4. Use the default judge model you configured in session 4, or pick another structured-output-capable judge model, and save.
-5. Create the evaluator and click on execute.
-
-If this is your first experiment, the review table or prompt preview may still say **No results** or **No trace data found** at setup time. That is expected. You have not created any experiment runs yet, so there is nothing for Langfuse to preview against. Save the evaluator now; after Step 4 creates the first run, this evaluator will score the new experiment items asynchronously.
-
-Why run on **Experiments** here? Because measures like `correctness` require ground truth. In a typical production setup we will not have ground truth, hence we need to create examples with ground truth to run quality checks of our application.
+The judge uses your existing `OPENAI_API_KEY` / `OPENAI_MODEL` from `.env` — the same credentials the agent already uses. You do **not** need the Langfuse-side default evaluator model from session 4 for this chapter.
 
 ## Step 4 — Run the dataset
 
@@ -130,9 +115,7 @@ Why run on **Experiments** here? Because measures like `correctness` require gro
 npm run dataset:run
 ```
 
-The script finishes by printing a formatted run summary in the console. Item-level traces and scores show up in Langfuse as the run executes, and the Correctness evaluator may continue filling in scores for a short time afterward because it runs asynchronously.
-
-The script attaches `keyword_overlap` itself. The Correctness evaluator you set up in Step 3 runs asynchronously in Langfuse over the new run rows shortly after.
+The script finishes by printing a formatted run summary in the console. Item-level traces and both scores show up in Langfuse as the run executes. Because the evaluators are callbacks, you should already see `keyword_overlap` and `correctness` in that console summary — not as a later async fill-in.
 
 ## What to inspect in Langfuse
 
@@ -146,13 +129,29 @@ The script attaches `keyword_overlap` itself. The Correctness evaluator you set 
 
 - One run row appears under the dataset.
 - Every item has a trace and both scores attached.
+- The console summary printed both `keyword_overlap` and `correctness`.
 - Trace shape matches a normal production trace.
+
+## Optional bonus — Langfuse Platform evaluators on experiment runs
+
+Once you have at least one experiment run, you can also attach Langfuse Platform evaluators (for example **Check Correctness** from the Template Gallery) so Langfuse scores future runs asynchronously in the UI. That path is useful when you want managed judges shared across the team — but it needs existing experiment observations to preview variable mapping, which is why this workshop starts with callbacks.
+
+If you try the bonus later:
+
+1. Open **Evaluators → New Evaluator** and pick **Check Correctness**.
+2. Filter for observations created by experiments.
+3. Map `output` → **Output**, and `expected_output` → **Expected Output → idealAnswer**.
+4. Save and execute the evaluator, then rerun `npm run dataset:run`.
+
+![Filter for observations created by experiments in the evaluator setup panel.](../images/experiments/correctness-experiment-observation-filter.png)
+
+![Map the Correctness evaluator variables to the experiment output and expected ideal answer.](../images/experiments/correctness-variable-mapping.png)
+
+See the [LLM-as-a-Judge docs](https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge) and the [Experiments via SDK docs](https://langfuse.com/docs/evaluation/experiments/experiments-via-sdk) for the full platform vs SDK picture.
 
 ## Wrap-up
 
-The two scoring approaches give you two angles on the same run: **keyword match** for "did we cover the right steps?" and **correctness** for "is the answer actually right?" Real evaluation programs often combine deterministic and judge-based checks like this.
-
-If your team prefers more evaluator logic in the Langfuse UI, the deterministic check could also be migrated into a code evaluator later. The [Code evaluators docs](https://langfuse.com/docs/evaluation/evaluation-methods/code-evaluators) cover that path, and the [Experiments via SDK docs](https://langfuse.com/docs/evaluation/experiments/experiments-via-sdk) show how the code-side setup fits together.
+The two scoring approaches give you two angles on the same run: **keyword match** for "did we cover the right steps?" and **correctness** for "is the answer actually right?" Both run as callbacks on `runExperiment`, so the first workshop run is fully scored without platform evaluator setup.
 
 The [**Langfuse skill**](https://github.com/langfuse/skills) (`/langfuse`) knows the recommended evaluator shapes and setup patterns — this walkthrough exists so you see what the skill is doing under the hood. Learn more about experiments in the [Langfuse Academy lesson](https://langfuse.com/academy/experiments).
 
