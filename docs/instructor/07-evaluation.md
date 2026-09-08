@@ -12,7 +12,7 @@ Learner guide: [07 Evaluate a Change](../learner/07-evaluation.md)
 - Make learners inspect run 1 before changing anything. The change should respond to evidence, not vibes.
 - Keep the iteration deliberately small: one prompt rule, one rerun, one comparison.
 - Emphasize regressions. The most useful comparison is often the item that got worse.
-- Remind learners that both experiment scores are platform-side now, so a missing score usually means "still pending" or "evaluator target mismatch," not a bug in `scripts/run-dataset.ts`.
+- Remind learners that both experiment scores come from `runExperiment` callbacks in `scripts/run-dataset.ts`, so a missing score usually means the script hit an OpenAI/Langfuse error — check the terminal output first.
 
 ## Demo rhythm
 
@@ -24,4 +24,4 @@ Learner guide: [07 Evaluate a Change](../learner/07-evaluation.md)
 ## Watch for
 
 - Learners changing both model and prompt at the same time, making the comparison hard to interpret.
-- New prompt versions that are saved but not promoted to the label the app fetches.
+- Learners editing the prompt in the UI but forgetting they need a new saved version promoted to the label the app fetches.
