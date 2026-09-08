@@ -24,7 +24,7 @@ A trace tells you about *one* turn. An experiment tells you about behavior *acro
 Different evaluators answer different questions. For a broader tour of evaluator types and when to pick which, see the [Langfuse Academy lesson on evaluate](https://langfuse.com/academy/evaluate). For this workshop we use two that give a quick first read on answer quality:
 
 - **`keyword_overlap`** (deterministic) — *did the answer cover the steps we expected?* Fast, cheap, and computed directly in the experiment script.
-- **`correctness`** (LLM-as-a-judge) — *is the answer actually correct?* More expressive, especially when the wording can vary but the underlying answer has to match the ideal.
+- **`correctness`** (LLM-as-a-judge) — *does the answer preserve the material meaning of the ideal answer?* A semantic-equivalence check: paraphrases pass, missing required detail or a contradicted fact fails.
 
 Both scores are **callback evaluators** inside `runExperiment`. They run in your process right after each item finishes, so the console summary and the Langfuse run already include both scores when the script exits. We intentionally avoid Langfuse Platform evaluators in this chapter: configuring one needs existing experiment data to preview and map variables, which creates a chicken-and-egg problem before your first run.
 
@@ -99,7 +99,7 @@ Keep in mind that `keyword_overlap` checks literal wording, not behaviour. The o
 
 ## Step 3 — Review the `correctness` LLM-as-a-judge callback
 
-The second callback in `evaluators` calls OpenAI with the agent answer and the item's `idealAnswer`, then returns a `correctness` score of `0` or `1` plus a short reasoning comment.
+The second callback in `evaluators` calls OpenAI with a **semantic-equivalence** judge prompt. It treats `idealAnswer` as the source of truth and asks whether the agent answer preserves every material meaning, fact, and constraint — paraphrases are fine; missing required detail or a contradicted fact is not. The callback maps the judge's true/false result to a `correctness` score of `0` or `1` plus a short reasoning comment.
 
 Why run the judge as a callback instead of a Langfuse Platform evaluator?
 
