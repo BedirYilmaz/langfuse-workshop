@@ -28,7 +28,7 @@ Learner guide: [04 Monitoring](../learner/04-monitoring.md)
 
 ## Watch for
 
-- Accidentally choosing the wrong template instead of **Detect User Disagreement** from the Template Gallery.
+- Accidentally choosing **Out-of-Scope Request** or another gallery template instead of **Detect User Disagreement**. This chapter wires one judge-based monitor plus the ALL-CAPS code evaluator.
 - Treating the Langfuse API keys from `.env` as enough for evaluators. Judge-based evaluators also need the Langfuse-side LLM connection.
 - Selecting a child generation instead of the root agent observation. The evaluator only receives data from the observation it targets; it does not automatically read sibling or child observations.
 - Mapping `conversation_history` to a single message, or `last_user_message` to every message. Use the live sample tree: **Input → messages** and **Input → messages → last**.

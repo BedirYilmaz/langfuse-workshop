@@ -1,6 +1,6 @@
 ---
 title: "Workshop: Monitoring AI Agent Behavior"
-description: "Configure Langfuse evaluators to catch out-of-scope requests, user disagreement, and all-caps upset signals without reading every production trace by hand."
+description: "Configure Langfuse evaluators to catch user disagreement and all-caps upset signals without reading every production trace by hand."
 ---
 
 # 04 Monitoring
@@ -38,7 +38,7 @@ Monitoring also has a quality-tracking dimension — average score on some metri
 You don't need to change any code in this step. The trace shape from `02-tracing` already has everything these monitors need: the agent observation has the full conversation and final answer, and each OpenAI generation has the system prompt plus the same message array.
 
 ## Step 0 — Configure the Langfuse evaluator model
-The first two monitors in this chapter use LLM-as-a-judge templates. Langfuse runs those judge calls from an LLM Connection inside your Langfuse project, so configure the evaluator model now, right before you use them.
+The first monitor in this chapter uses an LLM-as-a-judge template. Langfuse runs that judge call from an LLM Connection inside your Langfuse project, so configure the evaluator model now, right before you use it.
 
 If your project already has a default evaluator model, keep it and continue to Step 1.
 
@@ -50,14 +50,11 @@ If your project already has a default evaluator model, keep it and continue to S
 
 Keep the API key in the Langfuse secret field only. Do not paste it into workshop transcripts or shared notes.
 
-## Step 1 — Wire the first two judge-based monitors (Langfuse UI)
+## Step 1 — Wire the judge-based monitor (Langfuse UI)
 
-Langfuse ships published templates for **User Disagreement** and **Out-of-Scope Request**. Both are LLM-as-a-judge evaluators that read variables from observations. The two templates need slightly different targets:
+Langfuse ships a published **Detect User Disagreement** template. It is an LLM-as-a-judge evaluator that reads variables from observations.
 
-- **User Disagreement** needs the conversation history, so target the root `dad-it-support-chat-turn` agent observation.
-- **Out-of-Scope Request** needs the system prompt, so target the final OpenAI generation. Only the generation input carries the system message; the agent input is the chat request from the browser, which holds Dad's messages alone.
-
-For **User Disagreement**:
+**User Disagreement** needs the conversation history, so target the root `dad-it-support-chat-turn` agent observation.
 
 1. In Langfuse, open **Evaluators → New Evaluator** and pick **Detect User Disagreement** from the **Template Gallery**.
 2. On the right side, select the trace root as a sample observation, this will likely be preselected. We are targeting the root observation of type Agent, the place where the overall trace input and output is logged.
@@ -74,18 +71,18 @@ For **User Disagreement**:
 
    ![Map the last user message variable to the last input message.](../images/monitoring/user-disagreement-last-user-message-mapping.png)
 
-6. In the right panel, you can test run your evaluator on a sample observation
+4. In the right panel, you can test run your evaluator on a sample observation
 
    ![Test the User Disagreement evaluator on the selected sample observation.](../images/monitoring/user-disagreement-test-evaluator.png)
 
-7. Finally click on **Create evaluator**. In the upcoming screen you can see a rough cost estimation per week and set a sampling rate. As soon as you click on execute, your first evaluator is running.
+5. Finally click on **Create evaluator**. In the upcoming screen you can see a rough cost estimation per week and set a sampling rate. As soon as you click on execute, your first evaluator is running.
 
    ![Execute the saved evaluator on incoming observations using the configured filters.](../images/monitoring/user-disagreement-execute-evaluator.png)
 
 
 ## Step 2 — Add a code evaluator for all-caps frustration
 
-The monitor above use LLM-as-a-judge because they need semantic judgment. This one does not. We just want a cheap deterministic check for a user message that contains a long run of capital letters, indicating a user might be upset from the interaction with our system.
+The monitor above uses LLM-as-a-judge because it needs semantic judgment. This one does not. We just want a cheap deterministic check for a user message that contains a long run of capital letters, indicating a user might be upset from the interaction with our system.
 
 Code evaluators are a good fit for that pattern: no model call, no prompt design, just a simple rule that runs on live observations.
 
@@ -96,10 +93,10 @@ In the view you can see a pre-configured code evaluator, that is targeting the I
 
    ![Target the same root observation for the user-frustration code evaluator.](../images/monitoring/user-frustration-target-root-observation.png)
 
-   3. Run a test on the evaluator.
-   4. Click on **Create Evaluator** and then on execute.
+3. Run a test on the evaluator.
+4. Click on **Create Evaluator** and then on execute.
 
-This evaluator does **not** need the Langfuse evaluator model from Step 1, because it is pure Typescript code running inside Langfuse's sandbox rather than an LLM judge.
+This evaluator does **not** need the Langfuse evaluator model from Step 0, because it is pure Typescript code running inside Langfuse's sandbox rather than an LLM judge.
 
 ## Verify
 
@@ -107,12 +104,12 @@ This evaluator does **not** need the Langfuse evaluator model from Step 1, becau
 npm run dev
 ```
 
-Send four turns that should each light up one monitor:
+Send two turns that should each light up one monitor:
 
 1. **Disagreement** — ask a normal question, then reply with "No, that menu isn't there"
 2. **All caps** — "THIS STILL ISNT WORKING"
 
-In Langfuse, wait for the evaluators to run (refresh after a few seconds), then sort traces by the evaluator scores. The out-of-scope, disagreement, and all-caps traces should bubble to the top.
+In Langfuse, wait for the evaluators to run (refresh after a few seconds), then sort traces by the evaluator scores. The disagreement and all-caps traces should bubble to the top.
 
 ![User disagrees Example](../images/monitoring/user-disagrees-example.png)
 
@@ -120,11 +117,11 @@ In Langfuse, wait for the evaluators to run (refresh after a few seconds), then 
 
 User disagreement is a high-signal event. When a user pushes back on an answer the agent just gave, something almost certainly went wrong — wrong tool result, missing context, an instruction that doesn't match the iPhone they're on. These are the traces you want to read first, and they're prime candidates to turn into dataset items for `05-dataset`.
 
-The all-caps signal is intentionally rougher. It is not a claim that the user is definitely angry; it is just a cheap deterministic clue that the conversation might be going sideways. That makes it a good "review these first" monitor, especially when paired with the richer disagreement and out-of-scope judges.
+The all-caps signal is intentionally rougher. It is not a claim that the user is definitely angry; it is just a cheap deterministic clue that the conversation might be going sideways. That makes it a good "review these first" monitor, especially when paired with the richer disagreement judge.
 
 ## Seed production traffic and watch the monitors fire
 
-Four hand-typed turns prove the wiring works. But monitoring earns its keep on *volume* — so let's now seed a batch of realistic production data and look at what happens.
+Two hand-typed turns prove the wiring works. But monitoring earns its keep on *volume* — so let's now seed a batch of realistic production data and look at what happens.
 
 ```bash
 npm run langfuse:seed:otel:no-scores
@@ -140,7 +137,7 @@ Now open **Tracing**, filter to the `production` environment, and refresh after 
 
 Good monitors are how you separate signal from noise. Production means a lot of traces, and the most important question is *which ones should I look at?* — monitors answer that.
 
-Once you have signal-Request monitors in place, the next step over time is **average-metric tracking** — picking quality metrics and watching them drift. The right way to choose those metrics is **error analysis**: look at a sample of the surprising traces you're now catching, group them by failure mode, and turn the failure modes into evaluators. The [monitoring lesson on the Academy](https://langfuse.com/academy/monitoring) goes deeper on this.
+Once you have these signal-detection monitors in place, the next step over time is **average-metric tracking** — picking quality metrics and watching them drift. The right way to choose those metrics is **error analysis**: look at a sample of the surprising traces you're now catching, group them by failure mode, and turn the failure modes into evaluators. The [monitoring lesson on the Academy](https://langfuse.com/academy/monitoring) goes deeper on this.
 
 The traces you catch with these monitors are also the best source for the next step — `05-dataset` — because they're real examples of behavior you want to lock in or fix.
 
