@@ -58,3 +58,15 @@ Recommended jump patterns:
 - Short workshop: start at `checkpoint/01-base-app`, build tracing live, explain prompt management, and finish with monitoring.
 - Full workshop: walk through all checkpoints in order.
 - Catch-up jump: if a group gets stuck in tracing, jump straight to `checkpoint/04-monitoring` or `checkpoint/05-dataset` and continue from there.
+
+## Refreshing checkpoint docs
+
+Learner and instructor docs live on `main` and are copied onto every `checkpoint/*` tag so a mid-workshop checkout still shows current instructions. App code at each checkpoint stays on that milestone; only `docs/` and `README.md` move forward with `main`.
+
+After docs land on `main`, refresh the tags:
+
+```bash
+./scripts/sync-checkpoint-docs.sh --push
+```
+
+Without `--push`, the script updates local tags only. The script requires a clean working tree and force-moves the canonical checkpoint tags.
