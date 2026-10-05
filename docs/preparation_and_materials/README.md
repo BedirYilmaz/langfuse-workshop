@@ -28,3 +28,14 @@ This is a high-level guide on how to give the Langfuse workshop to your own audi
 - Ideally 20-30 people and 2 instructors so someone can walk around and help.
 - Ideally participants have some coding background.
 - Ideally participants have built something with LLMs before.
+
+## Delivery
+- We recommend going through the workshop the following way
+- Short Welcome
+- Ice breaker: Who has built agents before? Who has used Langfuse before? Who has solved evals for AI applications?
+- Intro to Langfuse and the AI Engineering Loop
+- Overview of how workshop will be conducted
+- Show how everyone can find the walkthrough
+- Let people go through it self-paced, do check-ins every 30-45 minutes to bring everyone back on the same page and show what has been set up, two modules at a time.
+- Walk around to answer any questions in the meantime
+- Pro tip: play music silently in background during working sessions due break the silence
