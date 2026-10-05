@@ -31,8 +31,8 @@ This checkpoint intentionally contains the same untraced base app as `checkpoint
 
 ## Step 1 — Get the API keys
 
-1. **OpenAI** — [platform.openai.com](https://platform.openai.com) → API Keys → create one. Copy the `sk-...` value.
-2. **Langfuse** — sign up at [langfuse.com](https://langfuse.com) on the **EU region**, create a project, and copy the public + secret keys from **Settings → API Keys**.
+1. **OpenAI** — [platform.openai.com](https://platform.openai.com) → API Keys → create one. Copy the `sk-...` value; you will paste it into `.env` in Step 3.
+2. **Langfuse** — sign up at [langfuse.com](https://langfuse.com) on the **EU region**, create a project, and copy the public + secret keys from **Settings → API Keys**. You will paste those into `.env` in Step 3 as well.
 
 ## Step 2 — Install the Langfuse skill and CLI
 
@@ -80,11 +80,9 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:3333](http://127.0.0.1:3333).
+Leave `npm run dev` running while you edit. Client changes hot-reload via Vite; server code and `.env` changes restart the API automatically. You do not need to stop and start the app for normal workshop edits.
 
-If you want to verify the server separately, check [http://127.0.0.1:8787/api/health](http://127.0.0.1:8787/api/health) or [http://127.0.0.1:8787/api/support-context](http://127.0.0.1:8787/api/support-context). During `npm run dev`, `127.0.0.1:8787/` is not the main app URL.
-
-If nothing loads on `127.0.0.1:3333`, scroll the `npm run dev` output back to the `[dev:client]` lines. `concurrently` keeps the API server running even when Vite has crashed, so the terminal still looks alive — and opening `127.0.0.1:8787/` in that state answers with `ENOENT ... dist/index.html`, which only means the production build is absent and says nothing about the real failure. A `Cannot find native binding` crash in those `[dev:client]` lines is the Node version; see Prerequisites.
+Open [http://127.0.0.1:3333](http://127.0.0.1:3333) to access the Dad IT Support Agent UI.
 
 ## Step 5 — Confirm what you see
 
@@ -100,8 +98,7 @@ You should see the **Dad IT Support Agent** chat:
 
 ## How to verify you are done
 
-- `npm run dev` is running and listening on `http://127.0.0.1:3333` (client) and `http://127.0.0.1:8787` (API server).
-- `http://127.0.0.1:8787/api/health` or `http://127.0.0.1:8787/api/support-context` returns a real response.
+- `npm run dev` is running and the UI loads at `http://127.0.0.1:3333`.
 - The browser shows the Specs greeting, not an error.
 - Sending one of the suggestion chips returns a real iPhone answer from the model.
 
