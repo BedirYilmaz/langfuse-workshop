@@ -51,13 +51,19 @@ new NodeSDK({ spanProcessors: [new LangfuseSpanProcessor()] }).start();
 
 The processor reads `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, and `LANGFUSE_BASE_URL` from the Node process environment. In this workshop, the server loads the repository `.env` before the Langfuse SDK starts, so edit `.env` instead of relying on exported shell values.
 
-Side note: if the last trace sometimes shows up late when you stop or restart `npm run dev`, come back to `index.ts` and turn the one-liner above into named `langfuseSpanProcessor` and `sdk` variables so `shutdown()` can flush them:
+Side note: if the last trace sometimes shows up late when you stop or restart `npm run dev`, come back to `index.ts` and give `shutdown()` something to flush.
+
+**Near the top of the file**, replace the one-liner SDK start with named variables:
 
 ```ts
 const langfuseSpanProcessor = new LangfuseSpanProcessor();
 const sdk = new NodeSDK({ spanProcessors: [langfuseSpanProcessor] });
 sdk.start();
+```
 
+**Near the bottom of the file**, find the existing `shutdown` function (it already closes the server on `SIGINT` / `SIGTERM`) and add the flush + SDK shutdown:
+
+```ts
 async function shutdown() {
   server.close();
   await langfuseSpanProcessor.forceFlush();
@@ -110,7 +116,7 @@ import { observe } from "@langfuse/tracing";
 export async function runSupportConversation(request: ChatRequest): Promise<ChatResponse> {
 ```
 
-Drop the `export` and rename it:
+Drop the `export` and rename the function from `runSupportConversation` to `runSupportConversationInner`:
 
 ```ts
 async function runSupportConversationInner(request: ChatRequest): Promise<ChatResponse> {
