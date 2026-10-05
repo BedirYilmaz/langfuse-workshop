@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Refresh learner/instructor docs on every canonical checkpoint tag from main.
+# Refresh learner/instructor docs and agent notes on every canonical checkpoint
+# tag from main (or SOURCE_REF).
 #
-# Workshop app code at each checkpoint stays unchanged. Only docs/ and README.md
-# are replaced so checkout instructions match the current workshop materials.
+# Workshop app code at each checkpoint stays unchanged. Only docs/, README.md,
+# and AGENTS.md are replaced so checkout instructions and maintainer rules match
+# the current workshop materials.
 #
 # Usage (from repo root, clean working tree):
 #   ./scripts/sync-checkpoint-docs.sh
@@ -48,7 +50,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-git archive "$SOURCE_REF" docs README.md | tar -x -C "$STAGE"
+git archive "$SOURCE_REF" docs README.md AGENTS.md | tar -x -C "$STAGE"
 
 for tag in "${TAGS[@]}"; do
   if ! git rev-parse --verify "refs/tags/$tag" >/dev/null 2>&1; then
@@ -62,8 +64,9 @@ for tag in "${TAGS[@]}"; do
   rm -rf docs
   cp -a "$STAGE/docs" .
   cp "$STAGE/README.md" README.md
+  cp "$STAGE/AGENTS.md" AGENTS.md
 
-  git add -A docs README.md
+  git add -A docs README.md AGENTS.md
   if git diff --cached --quiet; then
     echo "    already in sync with $SOURCE_REF"
     continue
@@ -72,9 +75,9 @@ for tag in "${TAGS[@]}"; do
   git commit -q -m "$(cat <<EOF
 Refresh checkpoint docs to latest workshop docs
 
-Replaces docs/ and README.md with the current tree from ${SOURCE_REF}
-so this checkpoint's instructions match main. App code at this
-checkpoint is unchanged.
+Replaces docs/, README.md, and AGENTS.md with the current tree from
+${SOURCE_REF} so this checkpoint's instructions and agent notes match
+main. App code at this checkpoint is unchanged.
 EOF
 )"
 
