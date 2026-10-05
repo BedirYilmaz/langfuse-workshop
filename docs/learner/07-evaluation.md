@@ -13,7 +13,7 @@ git checkout checkpoint/07-evaluation
 
 Your app is traced, monitored, has a hosted dataset, and at least one experiment run with both `keyword_overlap` and `correctness` scores. Now you make a change to the app and rerun the experiment to see whether it helped or hurt.
 
-Look at your first experiment run before making changes. Open the dataset → **Runs** tab and check the averages:
+Look at your first experiment run before making changes. Open the dataset → **Experiments** tab and check the averages:
 
 - `correctness` average — what fraction of items did the judge mark as actually correct?
 - `keyword_overlap` average — what fraction covered the expected steps?
@@ -88,7 +88,7 @@ You now have two runs under the same dataset, each linked to a different prompt 
 
 In Langfuse:
 
-- Dataset → **Runs** tab → both rows visible with `keyword_overlap` and `correctness` averages.
+- Dataset → **Experiments** tab → both rows visible with `keyword_overlap` and `correctness` averages.
 - **Chart view** → per-run averages side by side.
 - Add the new run as 'Compare with' in the sidebar
 
