@@ -46,7 +46,9 @@ If your project already has a default evaluator model, keep it and continue to S
 2. Click Add new LLM Connection.
 3. Choose OpenAI, name the connection, and paste your OpenAI API key into the secret field.
 4. Save the connection.
-5. The default evaluation model is set during evaluator creation: if the project doesn't have one yet, the Set up evaluator wizard asks for it at its Set up LLM connection step before you can continue. When that appears, choose the OpenAI connection and a structured-output-capable model such as openai / gpt-4.1, then save. Once set, it shows as Default model at the top of the Evaluators page, where you can also change it later.
+5. No extra action after saving the connection — the default evaluation model is set during evaluator creation. When the wizard asks you to pick a model, choose the OpenAI connection and a structured-output-capable model such as `openai / gpt-4.1`.
+
+   ![Choose the project default evaluation model in the Set up evaluator wizard.](../images/monitoring/default-evaluation-model.png)
 
 Keep the API key in the Langfuse secret field only. Do not paste it into workshop transcripts or shared notes.
 
@@ -109,7 +111,14 @@ Send two turns that should each light up one monitor:
 1. **Disagreement** — ask a normal question, then reply with "No, that menu isn't there"
 2. **All caps** — "THIS STILL ISNT WORKING"
 
-In Langfuse, wait for the evaluators to run (refresh after a few seconds), then sort traces by the evaluator scores. The disagreement and all-caps traces should bubble to the top.
+In Langfuse, wait for the evaluators to run (refresh after a few seconds), then filter for traces with the respective evaluator score:
+
+1. Open **Tracing**.
+2. Open the **Filters** sidebar.
+3. Under the matching score type (for example **Boolean Scores** for All CAPS), pick the evaluator name, set the operator to `equals`, and choose the value you care about (`true` / `false`).
+4. The table now shows only traces that match that score.
+
+![Filter Tracing for traces with a specific evaluator score.](../images/monitoring/filter-traces-by-evaluator-score.png)
 
 ![User disagrees Example](../images/monitoring/user-disagrees-example.png)
 

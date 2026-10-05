@@ -23,7 +23,7 @@ Learner guide: [04 Monitoring](../learner/04-monitoring.md)
 1. Confirm or configure the project's default evaluator model.
 2. Create **Detect User Disagreement**, select a sample root observation, map both variables through the data tree, run a test, then create and execute the evaluator.
 3. Create **Detect User Frustration (ALL CAPS)** on the same root observation, run a test, then create and execute it.
-4. Send one disagreement turn and one ALL-CAPS turn, then inspect the scores on their root observations.
+4. Send one disagreement turn and one ALL-CAPS turn, then in **Tracing** filter by the evaluator score (Boolean Scores → evaluator name → equals → true/false) to find the flagged traces.
 5. Seed production traffic with `npm run langfuse:seed:otel:no-scores`, refresh the Tracing view, and watch the two evaluators score the seeded batch.
 
 ## Watch for
