@@ -80,7 +80,7 @@ npm install
 npm run dev
 ```
 
-Leave `npm run dev` running while you edit. Client changes hot-reload via Vite; server code and `.env` changes restart the API automatically via `tsx watch`. You do not need to stop and start the app for normal workshop edits.
+Leave `npm run dev` running while you edit. Client changes hot-reload via Vite; server code and `.env` changes restart the API automatically. You do not need to stop and start the app for normal workshop edits.
 
 Open [http://127.0.0.1:3333](http://127.0.0.1:3333).
 
