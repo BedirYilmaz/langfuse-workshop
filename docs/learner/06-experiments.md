@@ -54,7 +54,7 @@ The whole run is one call to `runExperiment`. The shape boils down to:
 ```ts
 await dataset.runExperiment({
   name: "Dad IT Support Agent experiment",
-  runName,           // unique label for this run; shows up in the Runs tab
+  runName,           // unique label for this run; shows up in the Experiments tab
   description: "...",
   metadata: { model: env.openaiModel },
   maxConcurrency: 1, // run items one at a time
@@ -83,7 +83,7 @@ Three things to understand:
 
 - **`task`** is *your application logic* — we call straight into `runSupportConversation(...)`, which means every trace this script produces looks identical to a production trace.
 - **`evaluators`** is a list of callbacks. Each evaluator runs after `task` returns and attaches a score to the item trace. Here we use one deterministic check and one LLM-as-a-judge check.
-- **`runName`** groups every per-item trace into one row in the Langfuse Runs view. Pick a name that changes per run (we include the timestamp) so two runs don't collide.
+- **`runName`** groups every per-item trace into one row in the Langfuse Experiments view. Pick a name that changes per run (we include the timestamp) so two runs don't collide.
 
 ## Step 2 — Review the deterministic `keyword_overlap` evaluator
 
